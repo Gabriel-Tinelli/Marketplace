@@ -1,0 +1,56 @@
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+*.tlog
+
+# Build e artefatos temporários
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.ilk
+*.iobj
+*.ipdb
+
+# Dependências geradas pelo NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Configurações locais
+*.user
+*.suo
+*.vscode/
+
+# Arquivos gerados por IDEs
+.idea/
+.vs/
+
+# Configurações do Rider/JetBrains
+*.idea/
+
+# Configurações de containers
+docker-compose.override.yml
+
+# Configurações de publicação
+*.pubxml
+*.publishsettings
+
+# Arquivos de banco de dados local
+*.mdf
+*.ldf
+
+# Arquivos do sistema
+*.swp
+*.bak
+*.tmp
+
+# Configurações do Swagger
+swagger/
