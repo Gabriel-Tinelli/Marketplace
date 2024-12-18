@@ -1,5 +1,7 @@
+using Marketplace.Data;
 using Marketplace.UserAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Marketplace.UserAPI.Controllers;
 
@@ -7,30 +9,61 @@ namespace Marketplace.UserAPI.Controllers;
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+    private readonly MarketplaceContextUser _context;
 
-    private readonly ILogger<UserController> _logger;
-
-    public UserController(ILogger<UserController> logger)
+    public UserController(MarketplaceContextUser context)
     {
-        _logger = logger;
+        _context = context;
     }
-    
+
     [HttpGet]
-    public IEnumerable<User> Get()
+    public async Task<ActionResult> GetUsers()
     {
-        return Enumerable.Range(1, 5).Select(index => new User
-            {
-                Email = $"email{index}",
-                Role = ("teste"),
-                Username = $"username{index}",
-                CreatedAt = DateTime.Now,
-                PasswordHash = "password",
-                UserId = index
-            })
-            .ToArray();
+        var users = await _context.Users.ToListAsync();
+        return Ok(users);
+    }
+
+    [HttpPost]
+
+    public async Task<IActionResult> CreateUser([FromBody] User user)
+    {
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetUsers), new { id = user.UserId}, user);
+    }
+
+    [HttpPut]
+
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedUser)
+    {
+        var user = await _context.Users.FindAsync(id);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        user.Username = updatedUser.Username;
+        user.Email = updatedUser.Email;
+        user.Role = updatedUser.Role;
+        
+        await _context.SaveChangesAsync();
+        return NoContent();
+        
+    }
+
+    [HttpDelete]
+
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 }
