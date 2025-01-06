@@ -1,5 +1,6 @@
 using Marketplace.Data;
 using Marketplace.UserAPI.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +28,18 @@ public class UserController : ControllerBase
 
     public async Task<IActionResult> CreateUser([FromBody] User user)
     {
+        // Validar se os dados necessários estão presentes
+        if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Role))
+        {
+            return BadRequest("Campos obrigatórios estão incompletos.");
+        }
+        
+        // Criar objeto para realizar o hash
+        var passwordHasher = new PasswordHasher<User>();
+        
+        // Gerar o hash da senha
+        user.PasswordHash = passwordHasher.HashPassword(user, user.PasswordHash);
+        
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetUsers), new { id = user.UserId}, user);
@@ -46,6 +59,14 @@ public class UserController : ControllerBase
         user.Username = updatedUser.Username;
         user.Email = updatedUser.Email;
         user.Role = updatedUser.Role;
+        
+        //Re-hash da senha
+
+        if (!string.IsNullOrEmpty(updatedUser.PasswordHash))
+        {
+            var passwordHasher = new PasswordHasher<User>();
+            user.PasswordHash = passwordHasher.HashPassword(user, updatedUser.PasswordHash);
+        }
         
         await _context.SaveChangesAsync();
         return NoContent();
