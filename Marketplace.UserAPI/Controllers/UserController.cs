@@ -1,13 +1,10 @@
 using Marketplace.Data;
 using Marketplace.UserAPI.Models;
 using Marketplace.UserAPI.DTOs;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+
+using Marketplace.UserAPI.Services;
 
 namespace Marketplace.UserAPI.Controllers;
 
@@ -16,11 +13,13 @@ namespace Marketplace.UserAPI.Controllers;
 public class UserController : ControllerBase
 {
     private readonly MarketplaceContextUser _context;
+    private readonly AuthenticationTokenService _tokenService;
     private readonly IConfiguration _configuration;
 
-    public UserController(MarketplaceContextUser context, IConfiguration configuration)
+    public UserController(MarketplaceContextUser context, AuthenticationTokenService tokenService, IConfiguration configuration)
     {
         _context = context;
+        _tokenService = tokenService;
         _configuration = configuration;
     }
 
@@ -99,38 +98,7 @@ public class UserController : ControllerBase
         }
 
         // Gerar o token
-        var token = GenerateJwtToken(user);
+        var token = _tokenService.GenerateJwtToken(user);
         return Ok(new { token = token });
-    }
-
-    private string GenerateJwtToken(User user)
-    {
-        // Criar as claims do token
-        var claims = new[] 
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-        // Obter chave secreta do appsettings.json
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        // Configurar o token
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.Now.AddDays(1), // Você pode ajustar conforme necessário
-            Issuer = _configuration["Jwt:Issuer"],
-            Audience = _configuration["Jwt:Audience"],
-            SigningCredentials = creds
-        };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return tokenHandler.WriteToken(token);
     }
 }

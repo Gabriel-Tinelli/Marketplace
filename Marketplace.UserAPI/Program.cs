@@ -4,13 +4,12 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Marketplace.UserAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração da chave secreta do JWT
-var key = Encoding.ASCII.GetBytes("5125_[daybnKZw=(jANSKL ]_{dkams}.98221?OhB+VTY^6[knat_}bVr%rWVkLPONBC_6");
-
 // Autenticação com o JWT
+var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -42,6 +41,9 @@ builder.Services.AddDbContext<MarketplaceContextUser>(options =>
 
 // Adiciona os controladores
 builder.Services.AddControllers();
+
+// Injetar dependências
+builder.Services.AddSingleton<AuthenticationTokenService>();
 
 // Adiciona o Swagger
 builder.Services.AddEndpointsApiExplorer();
