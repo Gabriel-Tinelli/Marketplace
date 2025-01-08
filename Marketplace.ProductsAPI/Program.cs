@@ -1,21 +1,25 @@
 using Microsoft.EntityFrameworkCore;
 using ProductsService.Data;
+using CategoryService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Adiciona o DbContext ao pipeline de serviços
+// Adiciona o DbContext do produto ao pipeline de serviços
 builder.Services.AddDbContext<MarketplaceContextProduct>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))));
 
-// Add services to the container.
+// Adiciona o DbContext da categoria ao pipeline de serviços
+builder.Services.AddDbContext<MarketplaceContextCategory>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))));
 
+// Adiciona os controllers ao pipeline
 builder.Services.AddControllers();
 
 // Adiciona o Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 var app = builder.Build();
 
