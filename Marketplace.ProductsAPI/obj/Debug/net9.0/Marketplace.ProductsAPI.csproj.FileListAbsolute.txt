@@ -91,3 +91,4 @@ E:\Desenvolvedor_backend\dotnet\Marketplace\src\Marketplace.ProductsAPI\bin\Debu
 E:\Desenvolvedor_backend\dotnet\Marketplace\src\Marketplace.ProductsAPI\bin\Debug\net9.0\runtimes\win\lib\net8.0\System.Windows.Extensions.dll
 E:\Desenvolvedor_backend\dotnet\Marketplace\src\Marketplace.ProductsAPI\bin\Debug\net9.0\Marketplace.UserAPI.dll
 E:\Desenvolvedor_backend\dotnet\Marketplace\src\Marketplace.ProductsAPI\bin\Debug\net9.0\Marketplace.UserAPI.pdb
+E:\Desenvolvedor_backend\dotnet\Marketplace\src\Marketplace.ProductsAPI\bin\Debug\net9.0\Newtonsoft.Json.dll

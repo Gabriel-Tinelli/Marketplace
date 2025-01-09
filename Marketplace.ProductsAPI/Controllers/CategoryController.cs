@@ -1,8 +1,6 @@
 using CategoryService.Data;
 using CategoryService.Models;
 using Microsoft.AspNetCore.Mvc;
-using ProductsService.Data;
-using ProductsService.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Marketplace.CategoryAPI.Controllers
