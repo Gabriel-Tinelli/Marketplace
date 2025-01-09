@@ -6,6 +6,8 @@ using Marketplace.UserAPI.Models; // Para acessar User
 using CategoryService.Models; // Para acessar Category
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using CategoryService.Data;
 using Marketplace.Data;
@@ -18,12 +20,12 @@ namespace Marketplace.ProductsAPI.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly MarketplaceContextProduct _context;
-        private readonly MarketplaceContextUser _usercontext;
+        private readonly HttpClient _httpClient;
 
-        public ProductsController(MarketplaceContextProduct context, MarketplaceContextUser usercontext)
+        public ProductsController(MarketplaceContextProduct context, HttpClient httpClient)
         {
             _context = context;
-            _usercontext = usercontext;
+            _httpClient = httpClient;
         }
 
         // GET: api/Products
@@ -63,18 +65,18 @@ namespace Marketplace.ProductsAPI.Controllers
                 return BadRequest("Categoria inválida.");
             }
 
-            // Valida se o usuário existe (supondo que você tem acesso ao microserviço de usuários via HTTP)
-            var user = await _usercontext.Users.FindAsync(product.UserID);
-            if (user == null)
+            // Verifica se o user_id existe na API de Users
+            bool userExists = await UserExists(product.UserID);
+            if (!userExists)
             {
-                return BadRequest("Usuário inválido.");
+                return BadRequest("O user_id fornecido não existe.");
             }
 
-            // Adiciona o produto ao banco de dados
+            // Se o user_id for válido, continue com a criação do produto
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetProduct), new { id = product.ProductID }, product);
+            return Ok("Produto criado com sucesso.");
         }
 
         // PUT: api/Products/5
@@ -142,24 +144,19 @@ namespace Marketplace.ProductsAPI.Controllers
             return _context.Products.Any(e => e.ProductID == id);
         }
 
-        // Método para verificar se o UserID existe no banco de dados de usuários (simulação)
-        private async Task<bool> UserExists(int userId)
+        public async Task<bool> UserExists(int userId)
         {
-            // Simulando a verificação no banco de dados de usuários (você precisa fazer essa consulta em um banco de dados separado, usando uma API ou algo similar)
-            // Aqui está um exemplo de como a validação pode ser feita se você estiver acessando um banco de dados de usuários remoto.
+            // Verifica se o user_id existe na API de Users
+            var response = await _httpClient.GetAsync($"http://localhost:5108/user/{userId}");
+    
+            if (response.IsSuccessStatusCode)
+            {
+                // Se a resposta for bem-sucedida (status 200 OK), o user_id existe
+                return true;
+            }
 
-            // Este exemplo assume que você tem uma conexão separada com o banco de dados de usuários
-            // Neste caso, estamos simulando como se você tivesse uma consulta que fosse até o banco de dados de usuários:
-            var userExists = false;
-
-            // Aqui seria o código real para buscar o usuário no banco de dados de usuários, usando API ou consulta direta
-
-            // Exemplo fictício de consulta de usuários:
-            // var user = await _userDbContext.Users.FirstOrDefaultAsync(u => u.UserID == userId);
-            // userExists = user != null;
-
-            // Simulando o retorno (faça a validação com a real implementação)
-            return userExists;
+            // Se a resposta não for bem-sucedida, o user_id não existe
+            return false;
         }
     }
 }

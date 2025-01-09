@@ -29,6 +29,19 @@ public class UserController : ControllerBase
         var users = await _context.Users.ToListAsync();
         return Ok(users);
     }
+    
+    [HttpGet("{id}")]
+    public async Task<IActionResult> ValidateUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+    
+        if (user == null)
+        {
+            return NotFound(new { message = $"Usuário com ID {id} não encontrado." });
+        }
+
+        return Ok(new { message = "Usuário encontrado.", userId = id });
+    }
 
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] User user)
