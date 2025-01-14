@@ -9,7 +9,7 @@ namespace CategoryService.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("category_id")]
-        public int CategoryID { get; set; }
+        public int CategoryId { get; set; }
         
         [Required]
         [MaxLength(100)]

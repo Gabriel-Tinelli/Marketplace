@@ -17,16 +17,16 @@ namespace ProductsService.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuração da chave estrangeira para CategoryID
+            // Configuração da chave estrangeira para CategoryId
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category) // Relaciona com a propriedade de navegação
                 .WithMany()              // Uma categoria pode ter muitos produtos
-                .HasForeignKey(p => p.CategoryID) // Especifica a foreign key
+                .HasForeignKey(p => p.CategoryId) // Especifica a foreign key
                 .OnDelete(DeleteBehavior.Cascade); // Define o comportamento ao excluir uma categoria
 
             // Relacionamento Simulado com Users
             modelBuilder.Entity<Product>()
-                .Property(p => p.UserID) // UserId é apenas um campo, sem relacionamento
+                .Property(p => p.UserId) // UserId é apenas um campo, sem relacionamento
                 .IsRequired();           // Certifica que o campo é obrigatório
         }
     }

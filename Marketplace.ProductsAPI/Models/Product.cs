@@ -1,16 +1,29 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using CategoryService.Models;
+using Marketplace.ProductsAPI.DTOs;
 
 namespace ProductsService.Models
 {
     [Table("products")]
     public class Product
     {
+        public Product(ProductDto dto)
+        {
+            ProductName = dto.ProductName;
+            ProductId = dto.ProductId;
+            Description = dto.Description;
+            Price = dto.Price;
+            ImageURL = dto.ImageURL;
+            Stock = dto.Stock;
+            CategoryId = dto.CategoryId;
+        }
+        
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("product_id")]
-        public int ProductID { get; set; }
+        public int ProductId { get; set; }
         
         [Required]
         [MaxLength(255)]
@@ -42,16 +55,20 @@ namespace ProductsService.Models
         
         [Required]
         [Column("category_id")]
-        public int CategoryID { get; set; }
+        public int CategoryId { get; set; }
         
-        [ForeignKey("CategoryID")]
+        [ForeignKey("CategoryId")]
         public virtual Category? Category { get; set; }
         
         // Relacionamento simulado com user_id
         
         [Required]
         [Column("user_id")]
-        public int UserID { get; set; }
-        
+        public int UserId { get; set; }
+
+        public Product()
+        {
+                
+        }
     }
 }

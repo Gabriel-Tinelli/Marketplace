@@ -30,7 +30,7 @@ public class UserController : ControllerBase
         return Ok(users);
     }
     
-    [HttpGet("{id}")]
+    [HttpGet("{id}/exists")]
     public async Task<IActionResult> ValidateUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -41,6 +41,19 @@ public class UserController : ControllerBase
         }
 
         return Ok(new { message = "Usuário encontrado.", userId = id });
+    }
+    
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+    
+        if (user == null)
+        {
+            return NotFound(new { message = $"Usuário com ID {id} não encontrado." });
+        }
+
+        return Ok(user);
     }
 
     [HttpPost]

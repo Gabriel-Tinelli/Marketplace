@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using CategoryService.Data;
 using CategoryService.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +49,7 @@ namespace Marketplace.CategoryAPI.Controllers
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
             
-            return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryID },category);
+            return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryId },category);
         }
 
         [HttpPut("{id}")]

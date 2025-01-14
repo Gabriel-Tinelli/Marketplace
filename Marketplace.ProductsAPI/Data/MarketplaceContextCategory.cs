@@ -13,7 +13,7 @@ namespace CategoryService.Data
         {
             // Configurar a chave primária
             modelBuilder.Entity<Category>()
-                .HasKey(c => c.CategoryID);
+                .HasKey(c => c.CategoryId);
             
             base.OnModelCreating(modelBuilder);
         }

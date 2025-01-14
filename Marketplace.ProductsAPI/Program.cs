@@ -2,11 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using CategoryService.Data;
 using ProductsService.Data;
 using Marketplace.Data;
+using Marketplace.ProductsAPI.Clients;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Adiciona o HttpClient para ser injetado em controllers e outros serviços
 builder.Services.AddHttpClient();  // Adiciona o HttpClient
+
+// Injetar dependência do httpClient
+builder.Services.AddSingleton<UserClient>();
 
 // Adiciona o DbContext da categoria ao pipeline de serviços
 builder.Services.AddDbContext<MarketplaceContextCategory>(options =>

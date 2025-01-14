@@ -1,16 +1,10 @@
+using Marketplace.ProductsAPI.Clients;
+using Marketplace.ProductsAPI.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProductsService.Data;
 using ProductsService.Models;
-using Marketplace.UserAPI.Models; // Para acessar User
-using CategoryService.Models; // Para acessar Category
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using CategoryService.Data;
-using Marketplace.Data;
+
 
 
 namespace Marketplace.ProductsAPI.Controllers
@@ -20,12 +14,12 @@ namespace Marketplace.ProductsAPI.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly MarketplaceContextProduct _context;
-        private readonly HttpClient _httpClient;
+        private readonly UserClient _userClient;
 
-        public ProductsController(MarketplaceContextProduct context, HttpClient httpClient)
+        public ProductsController(MarketplaceContextProduct context, UserClient userClient)
         {
             _context = context;
-            _httpClient = httpClient;
+            _userClient = userClient;
         }
 
         // GET: api/Products
@@ -39,7 +33,7 @@ namespace Marketplace.ProductsAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.ProductID == id);
+            var product = await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
             {
@@ -51,7 +45,7 @@ namespace Marketplace.ProductsAPI.Controllers
 
         // POST: api/Products
         [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] Product product)
+        public async Task<IActionResult> CreateProduct([FromBody] ProductDto product)
         {
             if (product == null)
             {
@@ -59,21 +53,21 @@ namespace Marketplace.ProductsAPI.Controllers
             }
 
             // Valida se a categoria existe
-            var category = await _context.Categories.FindAsync(product.CategoryID);
+            var category = await _context.Categories.FindAsync(product.CategoryId);
             if (category == null)
             {
                 return BadRequest("Categoria inválida.");
             }
 
             // Verifica se o user_id existe na API de Users
-            bool userExists = await UserExists(product.UserID);
+            bool userExists = await _userClient.UserExists(1);
             if (!userExists)
             {
                 return BadRequest("O user_id fornecido não existe.");
             }
 
             // Se o user_id for válido, continue com a criação do produto
-            _context.Products.Add(product);
+            _context.Products.Add(new Product(product));
             await _context.SaveChangesAsync();
 
             return Ok("Produto criado com sucesso.");
@@ -81,22 +75,22 @@ namespace Marketplace.ProductsAPI.Controllers
 
         // PUT: api/Products/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<IActionResult> PutProduct(int id, ProductDto product)
         {
-            if (id != product.ProductID)
+            if (id != product.ProductId)
             {
                 return BadRequest();
             }
 
-            // Verificar se o UserID existe no banco de dados de usuários
-            var userExists = await UserExists(product.UserID);
+            // Verificar se o UserId existe no banco de dados de usuários
+            var userExists = await _userClient.UserExists(1);
             if (!userExists)
             {
                 return BadRequest("Usuário inválido.");
             }
 
-            // Verificar se a CategoryID existe no banco de dados de categorias
-            var categoryExists = await _context.Categories.AnyAsync(c => c.CategoryID == product.CategoryID);
+            // Verificar se a CategoryId existe no banco de dados de categorias
+            var categoryExists = await _context.Categories.AnyAsync(c => c.CategoryId == product.CategoryId);
             if (!categoryExists)
             {
                 return BadRequest("Categoria inválida.");
@@ -141,22 +135,8 @@ namespace Marketplace.ProductsAPI.Controllers
 
         private bool ProductExists(int id)
         {
-            return _context.Products.Any(e => e.ProductID == id);
+            return _context.Products.Any(e => e.ProductId == id);
         }
-
-        public async Task<bool> UserExists(int userId)
-        {
-            // Verifica se o user_id existe na API de Users
-            var response = await _httpClient.GetAsync($"http://localhost:5108/user/{userId}");
-    
-            if (response.IsSuccessStatusCode)
-            {
-                // Se a resposta for bem-sucedida (status 200 OK), o user_id existe
-                return true;
-            }
-
-            // Se a resposta não for bem-sucedida, o user_id não existe
-            return false;
-        }
+        
     }
 }
